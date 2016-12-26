@@ -10,7 +10,7 @@ class Configs
     public function set_configs()
     {
         $this->configs = array(
-            'host' => '',
+            'host' => 'localhost',
             'canonical-host' => '',
             'from-system' => 'gincore@ginсore.net',
             'shop-name' => 'Gincore',

@@ -80,6 +80,8 @@ class cart extends Controller
 
         if ($act == 'add-to-cart') {
             Response::json($this->addToCart($_GET));
+
+
         }
         if ($act == 'remove-from-cart') {
             Response::json($this->removeFromCart($_GET));
@@ -270,10 +272,48 @@ class cart extends Controller
     }
 
     /**
+     * @return array
+     */
+
+    //lopushansky edit
+    public function createCartProduct($id_prod)
+    {
+        $cart = Session::getInstance()->get('cart');
+
+        if($cart ){
+        $goods = $this->Goods->query('SELECT * FROM {goods} WHERE id in (?li)',
+            array(array_keys($cart)))->assoc('id');
+        $products = array();
+        foreach ($cart as $id => $quantity) {
+        $products[] = array(
+                'id' => $id,
+                'title' => $goods[$id]['title'],
+                'price' => $price / 100,
+                'quantity' => empty($post['quantity'][$id]) ? $quantity : $post['quantity'][$id]
+            );
+        }
+        foreach($products as $key=>$value){
+           if($value['id']==$id_prod) {
+
+               $product = $value;
+           }
+
+        }
+        
+        return $product;
+        }
+    }
+    //lopushansky edit
+
+    /**
      * @return string
      */
     public function gencontent()
     {
         return '';
     }
+
+
+
+  
 }

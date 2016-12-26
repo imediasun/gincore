@@ -91,6 +91,28 @@
     <?php endforeach; ?>
     </tbody>
 </table>
+<style>
+    .cart{
+        position:relative;
+    }
+    span.tab_count {
+        background-color: #0088CC;
+        border: 2px solid #FFFFFF;
+        border-radius: 10px;
+        color: #FFFFFF;
+        font-size: 12px;
+        font-weight: bold;
+        line-height: 14px;
+        margin: 0px -23px ;
+        padding: 1px 3px;
+        position: absolute;
+        right: -3px;
+        top: -8px;
+        display:none;
+    }
+
+</style>
+
 <script src="/manage/js/jquery-ui-1.9.0.custom.min.js"></script>
 <script>
     $(function () {

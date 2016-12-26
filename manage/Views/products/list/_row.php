@@ -62,13 +62,38 @@
             <?php endif; ?>
         </td>
     <?php endif; ?>
-    <?php if (isset($columns['cart'])): ?>
+    <?php if (isset($columns['cart'])):
+
+        //lopushansky edit
+        ?>
+        
+        
         <td>
-            <?php if ($good['type'] == GOODS_TYPE_ITEM): ?>
-                <a href="#" class='cart' onclick="return add_to_cart(<?= $good['id'] ?>);">
+            <?php
+            /*if ($good['type'] == GOODS_TYPE_ITEM):*/
+                $a=new cart();
+                $crt=$a->createCartProduct($good['id']);
+
+                ?>
+                <a href="#" class='cart' onclick="return add_to_cart(<?= $good['id'] ?>,$(this));">
                     <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+                    <span id="span_<?=$crt['id']?>" class="tab_count tc_suppliers_orders"><?=$crt['quantity']?></span>
                 </a>
-            <?php endif; ?>
+                <?
+                if($crt['quantity']>0){
+                ?>
+                <style>
+                    #span_<?=$crt['id']?>
+                    {
+                        display:block;
+                    }</style>
+                <?
+
+            }
+            ?>
+            <?php /*endif;*/
+            //lopushansky edit
+            ?>
         </td>
     <?php endif; ?>
     <?php if (isset($columns['mbalance'])): ?>

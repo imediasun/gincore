@@ -15,6 +15,7 @@ require_once __DIR__ . '/Helpers/InfoPopover.php';
 require_once __DIR__ . '/Core/Log.php';
 
 try {
+
     if (isset($all_configs['arrequest'][0]) && $all_configs['arrequest'][0] == 'set_lang' && isset($all_configs['arrequest'][1])) {
         $cotnent_lang_cookie = $dbcfg['_prefix'] . 'content_lang';
         setcookie($cotnent_lang_cookie, $all_configs['arrequest'][1], time() + 3600 * 24 * 30, $all_configs['prefix']);
@@ -80,13 +81,17 @@ try {
     $db = $all_configs['db'];
 
     if (!$ifauth && !in_array($a0, array('login_form', 'forgot_password', 'forgot_password_form'))) {
+
         if (isset($all_configs['arrequest'][0]) && !in_array($all_configs['arrequest'][0],
                 array('login_form', 'logout'))
         ) {
+
             setcookie('login_redirect', $_SERVER['REQUEST_URI'], time() + 1800, $all_configs['prefix']);
         } else {
+
             setcookie('login_redirect', null, -1, $all_configs['prefix']);
         }
+
         header("Location: " . $all_configs['prefix'] . "login_form");
         exit;
     }
@@ -94,7 +99,7 @@ try {
     if (isset($all_configs['arrequest'][0])) {
 
         if ($all_configs['arrequest'][0] == 'login_form') {
-            print('login_form');
+
             if ($ifauth) {
                 if (isset($_COOKIE['login_redirect']) && strpos($_COOKIE['login_redirect'], 'login_form') === false) {
                     header("Location: " . $_COOKIE['login_redirect']);
@@ -243,10 +248,14 @@ try {
     $input['avatar'] = avatar($ifauth['avatar']);
     $input['current_admin'] = ($ifauth['fio'] ?: $ifauth['login']);
 
+
+
     if ($all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
+
         $profile_color = '';
-        require_once __DIR__ . '/modules/orders/index.php';
-        $orders_module = new orders($all_configs, false);
+        require_once __DIR__ . '/modules/orders/index.php';print('321');
+        
+        $orders_module = new orders($all_configs, false);print('123');
         $orders_fail_percent = $orders_module->get_orders_manager_fail_percent();
         if ($orders_fail_percent <= 100) {
             if ($orders_fail_percent >= 30) {
@@ -263,9 +272,12 @@ try {
             }
         }
     }
+
+
     if (empty($profile_color)) {
         $input['profile_color'] = 'display:none';
     }
+
     $input['position_admin'] = ($ifauth['position'] ?: $db->query("SELECT name FROM {users_roles} WHERE id = ?i",
         array($ifauth['role']), 'el'));
     if (isset($_SESSION['id'])) {
@@ -277,6 +289,8 @@ try {
     $input['hide_sidebar'] = isset($_COOKIE['hide_menu']) && $_COOKIE['hide_menu'] ? 'hide-sidebar' : '';
     $input['homepage'] = l('Главная');
     $input['tariff'] = empty($tariff['name']) ? l('Проблемы') : $tariff['name'];
+
+
     $modules = scandir('./modules/');
 
     if (empty($curmod)) {
@@ -465,7 +479,7 @@ try {
 
 ################################################################################
 
-    require_once __DIR__ . '/TariffMessages.php';
+    require_once __DIR__ . '/TariffMessages.php';print('login_form');
     $input['tariff_message'] = TariffMessages::getInstance()->getMessage();
     $input['profile_tariff_caption'] = l('Ваш тариф:');
     $input['tariff_show'] = $all_configs['oRole']->hasPrivilege('edit-users')? 'block': 'none';
@@ -496,5 +510,5 @@ try {
 
     echo $html;
 } catch (Exception $e) {
-    Log::error($e->getMessage(), __DIR__ . '/../logs/exceptions.log');
+    Log::error($e->getMessage(), __DIR__ . '../logs/exceptions.log');
 }

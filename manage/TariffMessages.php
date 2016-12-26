@@ -2,6 +2,7 @@
 
 class TariffMessages
 {
+
     private static $instance = null;
     const SUCCESS = 'success';
     const INFO = 'info';
@@ -91,6 +92,7 @@ class TariffMessages
 
     public function getMessage()
     {
+        print('Tariff');
         $message = false;
         switch ($this->all_configs['curmod']) {
             case 'users':

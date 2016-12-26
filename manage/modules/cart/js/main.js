@@ -1,7 +1,23 @@
-function add_to_cart(id) {
+
+//lopushansky edit
+//отследить событие нажатие корзины
+//при нажатии поменять цвет карзины и верхнего поля
+//добавить циферку которая будет увеличиваться с каждым добавлением товара этой позиции в корзину
+
+function add_to_cart(id,_this) {
+
+  
+//Взять колличество этого товара из корзины по id
+var count=_this.find('span').html();
+if(count==0){
+count=1;
+  _this.find('span').html(1);
+  _this.find('span').css('display','block')
+}
   $.ajax({
     url: prefix + 'cart/ajax?act=add-to-cart&id=' + id,
     dataType: "json",
+    data:{id:id},
     type: 'POST',
     success: function (data) {
       if (data) {
@@ -11,6 +27,7 @@ function add_to_cart(id) {
         if (data['state'] == false && data['message']) {
           alert(data['message']);
         }
+      location.reload()
       }
     },
     error: function (xhr, ajaxOptions, thrownError) {
@@ -19,7 +36,11 @@ function add_to_cart(id) {
   });
   return false;
 }
+
+
+
 function show_cart() {
+
   var buttons = {
     sale: {
       label: '<i class="fa fa-plus-circle" aria-hidden="true"></i> ' + (L['sale'] || 'sale'),
@@ -52,6 +73,7 @@ function show_cart() {
           type: 'POST',
           data: $('form#cart-form').serialize(),
           success: function (data) {
+
             if (data.state && data.redirect) {
               window.location.href = data.redirect;
             }
@@ -90,6 +112,7 @@ function show_cart() {
     dataType: "json",
     type: 'GET',
     success: function (data) {
+
       if (data) {
         if (data['state'] == true) {
           dialog_box(this, data['title'], data['content'], buttons, null, 'ml-dialog');
@@ -119,6 +142,7 @@ function delete_from_cart(_this, id) {
         if (data['state'] == false && data['message']) {
           alert(data['message']);
         }
+        location.reload();
       }
     },
     error: function (xhr, ajaxOptions, thrownError) {
